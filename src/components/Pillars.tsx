@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, forwardRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 
 export const pillars = [
@@ -144,11 +144,19 @@ export const pillars = [
 export default function Pillars() {
   const [activePillar, setActivePillar] = useState<number | null>(1);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showConnectionWire, setShowConnectionWire] = useState(false);
   const detailPanelRef = useRef<HTMLDivElement>(null);
+  const pillarRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
 
   const handlePillarClick = (pillarId: number) => {
     if (pillarId !== activePillar && !isAnimating) {
+      setShowConnectionWire(true);
       setIsAnimating(true);
+
+      setTimeout(() => {
+        setShowConnectionWire(false);
+      }, 800);
+
       setTimeout(() => {
         setActivePillar(pillarId);
         setTimeout(() => setIsAnimating(false), 400);
@@ -201,7 +209,30 @@ export default function Pillars() {
           <p className="text-brand-gray text-base sm:text-lg">Click to explore each pillar.</p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-start">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-start relative">
+          {/* Connection Wire Animation */}
+          {showConnectionWire && (
+            <svg
+              className="absolute inset-0 w-full h-full pointer-events-none z-20"
+              style={{ overflow: 'visible' }}
+            >
+              <path
+                d="M 40% 30% Q 60% 30%, 80% 40%"
+                stroke="url(#wireGradient)"
+                strokeWidth="3"
+                fill="none"
+                strokeDasharray="10 5"
+                className="connection-wire"
+              />
+              <defs>
+                <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stopColor="#702594" stopOpacity="0.8"/>
+                  <stop offset="100%" stopColor="#e07742" stopOpacity="0.8"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          )}
+
           <div className="space-y-3 sm:space-y-4">
             {pillars.map((pillar) => (
               <PillarCard
@@ -209,6 +240,7 @@ export default function Pillars() {
                 pillar={pillar}
                 isActive={activePillar === pillar.id}
                 onClick={() => handlePillarClick(pillar.id)}
+                ref={(el) => (pillarRefs.current[pillar.id] = el)}
               />
             ))}
           </div>
@@ -216,24 +248,20 @@ export default function Pillars() {
           <div ref={detailPanelRef} className="lg:sticky lg:top-24 detail-panel-container">
             {selectedPillar && (
               <div
-                className={`detail-panel bg-gradient-to-br from-gray-50 to-white border-2 border-brand-purple rounded-3xl p-6 sm:p-8 shadow-2xl cursor-purple transition-all duration-300 flex flex-col ${
+                className={`detail-panel bg-gradient-to-br from-gray-50 to-white border-2 rounded-3xl p-6 sm:p-8 shadow-2xl cursor-purple transition-all duration-300 flex flex-col ${
                   isAnimating ? 'slide-out' : 'slide-in'
                 }`}
+                style={{
+                  borderColor: selectedPillar.accentColor.includes('orange') ? '#e07742' :
+                              selectedPillar.accentColor.includes('purple') ? '#702594' :
+                              selectedPillar.accentColor.includes('blue') ? '#1406b3' :
+                              selectedPillar.accentColor.includes('green') ? '#057210' : '#702594'
+                }}
               >
-                <div className="flex justify-between items-start mb-3">
-                  <span className={`text-sm font-bold uppercase ${selectedPillar.accentColor}`}>
-                    {selectedPillar.number}
-                  </span>
-                </div>
-
-                <h3 className="text-xl sm:text-2xl font-bold mb-2 leading-tight">{selectedPillar.title}</h3>
-                <p className="text-gray-600 mb-4 text-sm leading-relaxed">
-                  {selectedPillar.description}
-                </p>
 
                 {/* Overview */}
                 {selectedPillar.overview && (
-                  <div className="border-t border-gray-200 pt-3 mb-4">
+                  <div className="mb-4">
                   <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">
                       Overview
                   </h4>
@@ -343,6 +371,26 @@ export default function Pillars() {
           transform: translateX(4px);
         }
 
+        .connection-wire {
+          animation: wireFlow 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          stroke-dasharray: 1000;
+          stroke-dashoffset: 1000;
+        }
+
+        @keyframes wireFlow {
+          0% {
+            stroke-dashoffset: 1000;
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+          }
+          100% {
+            stroke-dashoffset: 0;
+            opacity: 0.8;
+          }
+        }
+
         .detail-panel {
           will-change: transform, opacity;
           position: sticky;
@@ -433,38 +481,58 @@ export default function Pillars() {
   );
 }
 
-function PillarCard({ pillar, isActive, onClick }: {
+const PillarCard = forwardRef<HTMLDivElement, {
   pillar: typeof pillars[0];
   isActive: boolean;
   onClick: () => void;
-}) {
+}>(({ pillar, isActive, onClick }, ref) => {
+  const getBrandColor = () => {
+    if (pillar.accentColor.includes('orange')) return '#e07742';
+    if (pillar.accentColor.includes('purple')) return '#702594';
+    if (pillar.accentColor.includes('blue')) return '#1406b3';
+    if (pillar.accentColor.includes('green')) return '#057210';
+    return '#702594';
+  };
+
+  const brandColor = getBrandColor();
+
   return (
     <div
+      ref={ref}
       onClick={onClick}
-      className={`pillar-card p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-gray-50 to-white border transition-all duration-500 cursor-pointer hover:shadow-lg group relative overflow-hidden ${
+      className={`pillar-card p-4 sm:p-5 rounded-2xl border transition-all duration-500 cursor-pointer hover:shadow-lg group relative overflow-hidden ${
         isActive
-          ? 'border-brand-purple shadow-xl scale-[1.02]'
-          : 'border-gray-100 shadow-sm hover:border-gray-200'
+          ? 'shadow-xl scale-[1.02]'
+          : 'shadow-sm hover:border-gray-200'
       }`}
+      style={{
+        background: isActive
+          ? `linear-gradient(135deg, ${brandColor}15 0%, ${brandColor}08 100%)`
+          : 'linear-gradient(to right, #f9fafb, #ffffff)',
+        borderColor: isActive ? brandColor : '#e5e7eb'
+      }}
     >
       <div className="flex justify-between items-start mb-3 relative z-10">
-        <span className={`text-xs font-bold uppercase transition-colors duration-500 ${
-          isActive ? 'text-brand-purple' : 'text-gray-300'
-        }`}>
+        <span className={`text-xs font-bold uppercase transition-colors duration-500`}
+          style={{ color: isActive ? brandColor : '#d1d5db' }}
+        >
           {pillar.number}
         </span>
         <ArrowRight
           className={`w-4 h-4 transition-all duration-500 ${
             isActive
-              ? 'text-brand-purple translate-x-0 opacity-100'
-              : 'text-gray-400 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
+              ? 'translate-x-0 opacity-100'
+              : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
           }`}
+          style={{ color: isActive ? brandColor : '#9ca3af' }}
         />
       </div>
 
       <h3 className={`text-base sm:text-lg font-semibold mb-1.5 transition-colors duration-300 ${
-        isActive ? 'text-brand-purple' : 'text-brand-black group-hover:text-brand-purple'
-      }`}>
+        isActive ? '' : 'text-brand-black'
+      }`}
+        style={{ color: isActive ? brandColor : undefined }}
+      >
         {pillar.title}
       </h3>
       <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">{pillar.description}</p>
@@ -473,8 +541,8 @@ function PillarCard({ pillar, isActive, onClick }: {
         className={`absolute bottom-0 left-0 w-full h-1 transition-all duration-500 origin-left ${
           isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50'
         }`}
-        style={{ backgroundColor: isActive ? '#702594' : '#e0e0e0' }}
+        style={{ backgroundColor: brandColor }}
       ></div>
     </div>
   );
-}
+});
