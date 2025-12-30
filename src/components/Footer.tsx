@@ -56,45 +56,43 @@ export default function Footer() {
 
   return (
     <>
-      <footer className="bg-brand-black text-white pt-8 pb-6 px-6">
+      <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white pt-16 pb-8 px-6">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
             <div>
-              <div className="mb-3">
-                <img 
-                  src="/media/footerimage-removebg-preview.png" 
-                  alt="Flownetics Logo" 
-                  className="h-12 w-auto mb-3 object-contain"
+              <div className="mb-5">
+                <img
+                  src="/media/footerimage-removebg-preview.png"
+                  alt="Flownetics Logo"
+                  className="h-14 w-auto mb-4 object-contain"
                 />
-               
-           
               </div>
-              <p className="text-gray-400 text-xs leading-relaxed mb-4">
+              <p className="text-gray-400 text-sm leading-relaxed mb-6" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Revolutionizing chemical manufacturing through continuous flow technology and AI-driven innovation.
               </p>
-              <div className="flex gap-2">
+              <div className="flex gap-3">
                 <a
                   href="https://linkedin.com/company/flownetics"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 bg-brand-purple/20 flex items-center justify-center hover:bg-brand-purple transition-colors rounded"
+                  className="w-10 h-10 bg-gradient-to-br from-brand-orange to-brand-purple flex items-center justify-center hover:scale-110 transition-transform rounded-lg shadow-lg"
                 >
-                  <Linkedin className="w-4 h-4" />
+                  <Linkedin className="w-5 h-5" />
                 </a>
                 <a
                   href="https://instagram.com/flownetics"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-8 h-8 bg-brand-purple/20 flex items-center justify-center hover:bg-brand-purple transition-colors rounded"
+                  className="w-10 h-10 bg-gradient-to-br from-brand-purple to-brand-blue flex items-center justify-center hover:scale-110 transition-transform rounded-lg shadow-lg"
                 >
-                  <Instagram className="w-4 h-4" />
+                  <Instagram className="w-5 h-5" />
                 </a>
               </div>
             </div>
 
             <div>
-              <h4 className="text-base font-medium mb-3">Company</h4>
-              <ul className="space-y-2 text-xs text-gray-400 font-light">
+              <h4 className="text-lg font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Company</h4>
+              <ul className="space-y-3 text-sm text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <li>
                   <a href="#about" onClick={(e) => handleNavClick(e, '#about')} className="hover:text-brand-purple transition-colors">
                     About Us
@@ -119,8 +117,8 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-base font-medium mb-3">Newsletter</h4>
-              <p className="text-gray-400 text-xs mb-3">
+              <h4 className="text-lg font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Newsletter</h4>
+              <p className="text-gray-400 text-sm mb-4" style={{ fontFamily: "'Inter', sans-serif" }}>
                 Stay updated with the latest in flow chemistry and AI-driven innovation.
               </p>
               <form onSubmit={handleSubscribe} className="space-y-2">
@@ -137,10 +135,11 @@ export default function Footer() {
                 <button
                   type="submit"
                   disabled={isSubscribing}
-                  className="w-full bg-brand-purple hover:bg-brand-purple/80 text-white px-3 py-2 rounded font-medium transition-colors flex items-center justify-center gap-2 text-xs disabled:opacity-50"
+                  className="w-full bg-gradient-to-r from-brand-orange to-brand-purple hover:scale-105 text-white px-4 py-3 rounded-lg font-semibold transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50 shadow-lg"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
                   {isSubscribing ? 'Subscribing...' : 'Subscribe'}
-                  <Send className="w-3 h-3" />
+                  <Send className="w-4 h-4" />
                 </button>
                 {subscribeMessage && (
                   <p className={`text-xs ${subscribeMessage.includes('Thank you') ? 'text-green-400' : 'text-yellow-400'}`}>
@@ -167,8 +166,8 @@ export default function Footer() {
             </div>
 
             <div>
-              <h4 className="text-base font-medium mb-3">Contact Us</h4>
-              <div className="space-y-2.5 text-xs text-gray-400 font-light">
+              <h4 className="text-lg font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Contact Us</h4>
+              <div className="space-y-3 text-sm text-gray-400" style={{ fontFamily: "'Inter', sans-serif" }}>
                 <div className="flex items-start gap-2">
                   <MapPin className="w-4 h-4 text-brand-purple flex-shrink-0 mt-0.5" />
                   <div>
@@ -204,9 +203,9 @@ export default function Footer() {
             </div>
           </div>
 
-          <div className="border-t border-white/10 pt-4 flex flex-col md:flex-row justify-between items-center gap-2 text-xs text-gray-400">
-            <p>&copy; 2024 Flownetics Engineering Private Limited. All rights reserved.</p>
-            <p>Engineered with precision and innovation.</p>
+          <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-sm text-gray-400">
+            <p style={{ fontFamily: "'Inter', sans-serif" }}>&copy; 2024 Flownetics Engineering Private Limited. All rights reserved.</p>
+            <p className="font-medium bg-gradient-to-r from-brand-orange to-brand-purple bg-clip-text text-transparent" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Engineered with precision and innovation</p>
           </div>
         </div>
       </footer>

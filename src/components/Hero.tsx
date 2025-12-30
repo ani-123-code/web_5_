@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { ArrowRight, FlaskConical } from 'lucide-react';
+import { ArrowRight, FlaskConical, Sparkles } from 'lucide-react';
 import { useScrollReveal } from '../hooks/useScrollReveal';
 
 export default function Hero() {
@@ -13,7 +13,6 @@ export default function Hero() {
   const flowPhrase = "Means Going With the Flow.";
 
   useEffect(() => {
-    // Rotating words animation
     const interval = setInterval(() => {
       setCurrentWordIndex((prev) => (prev + 1) % rotatingWords.length);
     }, 3000);
@@ -22,11 +21,10 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    // Flow text animation - split into words and characters
     if (flowTextRef.current) {
       const words = flowPhrase.split(' ');
       let charCount = 0;
-      
+
       const wrappedHtml = words.map(word => {
         const letters = word.split('').map(char => {
           return `<span class="char" style="--char-index: ${charCount++}">${char}</span>`;
@@ -40,25 +38,20 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    // Changing word animation - only the word after "Smart" changes
     if (wrapperRef.current && changingWordRef.current) {
       const words = ['Chemistry', 'Scale-up', 'Manufacturing'];
       let wordIndex = 0;
 
-      // Set initial word
       changingWordRef.current.textContent = words[wordIndex];
 
       const interval = setInterval(() => {
-        // Fade out & slide down
         wrapperRef.current!.style.opacity = '0';
         wrapperRef.current!.style.transform = 'translateY(10px)';
 
         setTimeout(() => {
-          // Change word
           wordIndex = (wordIndex + 1) % words.length;
           changingWordRef.current!.textContent = words[wordIndex];
 
-          // Fade in & slide up
           wrapperRef.current!.style.opacity = '1';
           wrapperRef.current!.style.transform = 'translateY(0)';
         }, 500);
@@ -70,90 +63,83 @@ export default function Hero() {
 
   return (
     <>
-      <section className="relative min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-20 sm:py-24 overflow-hidden bg-gradient-to-b from-white to-gray-50/30">
-        {/* Dynamic Background Elements */}
+      <section className="relative min-h-screen flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-24 sm:py-28 overflow-hidden bg-gradient-to-br from-white via-orange-50/30 to-purple-50/30">
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          {/* Animated Gradient Blobs - More subtle and white */}
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gray-200/20 rounded-full mix-blend-multiply filter blur-[120px] animate-blob opacity-20"></div>
-          <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-gray-300/15 rounded-full mix-blend-multiply filter blur-[120px] animate-blob animation-delay-2000 opacity-20"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gray-200/15 rounded-full mix-blend-multiply filter blur-[120px] animate-blob animation-delay-4000 opacity-15"></div>
+          <div className="absolute top-20 right-10 w-[600px] h-[600px] bg-brand-orange/20 rounded-full mix-blend-multiply filter blur-[150px] animate-blob"></div>
+          <div className="absolute bottom-20 left-10 w-[500px] h-[500px] bg-brand-purple/20 rounded-full mix-blend-multiply filter blur-[150px] animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-brand-green/15 rounded-full mix-blend-multiply filter blur-[150px] animate-blob animation-delay-4000"></div>
         </div>
 
-        <div ref={heroRef} className="relative z-10 max-w-5xl text-center reveal-on-scroll flex flex-col items-center">
-          
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/50 backdrop-blur-md border border-gray-200 mb-6 sm:mb-8 shadow-sm transition-all hover:scale-105 cursor-default hover:border-brand-purple/30">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-purple opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-purple"></span>
+        <div ref={heroRef} className="relative z-10 max-w-6xl text-center reveal-on-scroll flex flex-col items-center">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/70 backdrop-blur-xl border border-orange-200/50 mb-8 shadow-lg transition-all hover:scale-105 cursor-default hover:shadow-xl group">
+            <Sparkles className="w-4 h-4 text-brand-orange group-hover:rotate-12 transition-transform" />
+            <span className="text-xs font-bold tracking-widest uppercase bg-gradient-to-r from-brand-orange to-brand-purple bg-clip-text text-transparent" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              The Future of Continuous Flow
             </span>
-            <span className="text-[10px] sm:text-xs font-semibold tracking-wide uppercase text-gray-600">The Future of Continuous Flow</span>
           </div>
 
-          {/* Enhanced Typography */}
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light tracking-tighter leading-[1.15] sm:leading-[1.1] mb-6 sm:mb-8 text-brand-black relative w-full px-2">
-            {/* Abstract Flow Line SVG behind text */}
-            <svg className="absolute -top-20 -left-20 w-[120%] h-[150%] -z-10 opacity-40 pointer-events-none text-brand-purple hidden sm:block" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M-50 100 C 50 100, 100 0, 200 100 S 350 200, 450 100" stroke="url(#paint0_linear)" strokeWidth="2" strokeLinecap="round" className="animate-flow-dash" strokeDasharray="10 10"/>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-tight leading-[1.1] mb-6 text-gray-900 relative w-full px-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <svg className="absolute -top-20 -left-20 w-[120%] h-[150%] -z-10 opacity-30 pointer-events-none hidden sm:block" viewBox="0 0 400 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-50 100 C 50 100, 100 0, 200 100 S 350 200, 450 100" stroke="url(#paint0_linear)" strokeWidth="3" strokeLinecap="round" className="animate-flow-dash" strokeDasharray="10 10"/>
               <defs>
                 <linearGradient id="paint0_linear" x1="0" y1="0" x2="400" y2="0" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#e07742" stopOpacity="0.2"/>
-                  <stop offset="0.5" stopColor="#702594" stopOpacity="0.5"/>
-                  <stop offset="1" stopColor="#057210" stopOpacity="0.2"/>
+                  <stop stopColor="#e07742" stopOpacity="0.3"/>
+                  <stop offset="0.5" stopColor="#702594" stopOpacity="0.6"/>
+                  <stop offset="1" stopColor="#057210" stopOpacity="0.3"/>
                 </linearGradient>
               </defs>
             </svg>
 
-            <div className="text-center mb-2 sm:mb-3">
-              Join the <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-brand-purple via-brand-purple to-brand-green">Flow Revolution.</span>
+            <div className="text-center mb-4">
+              Join the <span className="bg-gradient-to-r from-brand-orange via-brand-purple to-brand-green bg-clip-text text-transparent">Flow Revolution</span>
             </div>
 
-            <div className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl xl:text-7xl mt-4 sm:mt-6 font-light text-brand-black/90 flex flex-wrap justify-center items-center gap-2 md:gap-3">
-              <span>Smart</span>
-              <span className="inline-block min-w-[180px] sm:min-w-[220px] md:min-w-[350px] lg:min-w-[420px] text-left relative h-[1.2em]">
+            <div className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl mt-6 flex flex-wrap justify-center items-center gap-3 md:gap-4">
+              <span className="text-gray-800">Smart</span>
+              <span className="inline-block min-w-[200px] sm:min-w-[250px] md:min-w-[380px] lg:min-w-[450px] text-left relative h-[1.2em]">
                 <span ref={wrapperRef} className="absolute left-0 top-0 transition-all duration-500" style={{ opacity: 1 }}>
-                  <span ref={changingWordRef} className="font-medium text-brand-green relative z-10">Chemistry</span>
+                  <span ref={changingWordRef} className="bg-gradient-to-r from-brand-orange to-brand-green bg-clip-text text-transparent relative z-10">Chemistry</span>
                 </span>
               </span>
             </div>
           </h1>
 
-          <div className="h-6 sm:h-8 mb-4 sm:mb-6">
-            <span ref={flowTextRef} className="text-base sm:text-lg md:text-xl lg:text-2xl text-brand-gray/80 font-medium tracking-tight opacity-0"></span>
+          <div className="h-8 sm:h-10 mb-6">
+            <span ref={flowTextRef} className="text-lg sm:text-xl md:text-2xl lg:text-3xl text-gray-600 font-medium tracking-tight opacity-0" style={{ fontFamily: "'Inter', sans-serif" }}></span>
           </div>
 
-          {/* Subtext */}
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-500 font-light max-w-2xl mx-auto leading-relaxed mb-8 sm:mb-10 md:mb-12 px-4">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-gray-600 font-medium max-w-3xl mx-auto leading-relaxed mb-10 sm:mb-12 px-4" style={{ fontFamily: "'Inter', sans-serif" }}>
             Accelerate from gram-scale R&D to ton-scale production. <br className="hidden md:block"/>
-            Zero scale-up risks. <span className="text-brand-black font-medium">40% lower CapEx.</span>
+            Zero scale-up risks. <span className="text-brand-orange font-bold">40% lower CapEx.</span>
           </p>
 
-          {/* Buttons & Social Proof */}
-          <div className="flex flex-col items-center gap-6 sm:gap-8 w-full px-4">
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
-            <button
-              onClick={() => {
-                const element = document.querySelector('#ai-architect');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-                className="bg-brand-black text-white px-6 sm:px-8 py-3 sm:py-4 rounded-2xl text-xs sm:text-sm font-medium hover:bg-gray-800 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-1 w-full sm:w-auto sm:min-w-[200px] flex items-center justify-center gap-2 group"
-            >
-              Start Feasibility Audit
-                <FlaskConical className="w-4 h-4 text-brand-green group-hover:rotate-12 transition-transform" />
-            </button>
-            <button
-              onClick={() => {
-                const element = document.querySelector('#pillars');
-                if (element) {
-                  element.scrollIntoView({ behavior: 'smooth' });
-                }
-              }}
-                className="glass-panel text-brand-black px-6 sm:px-8 py-3 sm:py-4 rounded-2xl text-xs sm:text-sm font-normal hover:bg-white border border-gray-200 hover:border-brand-purple/50 transition-all flex items-center gap-2 w-full sm:w-auto sm:min-w-[200px] justify-center backdrop-blur-sm"
-            >
-              Explore Platform <ArrowRight className="w-4 h-4 text-brand-purple" />
-            </button>
+          <div className="flex flex-col items-center gap-8 w-full px-4">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-md sm:max-w-none">
+              <button
+                onClick={() => {
+                  const element = document.querySelector('#ai-architect');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="bg-gradient-to-r from-brand-orange to-brand-purple text-white px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-base font-bold hover:shadow-2xl transition-all hover:scale-105 w-full sm:w-auto sm:min-w-[240px] flex items-center justify-center gap-3 group"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Start Feasibility Audit
+                <FlaskConical className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+              </button>
+              <button
+                onClick={() => {
+                  const element = document.querySelector('#pillars');
+                  if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                  }
+                }}
+                className="bg-white/80 backdrop-blur-xl text-gray-800 px-8 sm:px-10 py-4 sm:py-5 rounded-full text-sm sm:text-base font-bold border-2 border-gray-200 hover:border-brand-orange hover:shadow-xl transition-all flex items-center gap-3 w-full sm:w-auto sm:min-w-[240px] justify-center group"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Explore Platform <ArrowRight className="w-5 h-5 text-brand-purple group-hover:translate-x-1 transition-transform" />
+              </button>
             </div>
           </div>
         </div>
@@ -166,7 +152,7 @@ export default function Hero() {
           margin-right: 0.25em;
           vertical-align: top;
         }
-        
+
         .char {
           display: inline-block;
           opacity: 0;
@@ -176,14 +162,14 @@ export default function Hero() {
         }
 
         @keyframes flowReveal {
-          0% { 
-            opacity: 0; 
-            transform: translateX(-15px) scaleX(0.9); 
+          0% {
+            opacity: 0;
+            transform: translateX(-15px) scaleX(0.9);
             filter: blur(4px);
           }
-          100% { 
-            opacity: 1; 
-            transform: translateX(0) scaleX(1); 
+          100% {
+            opacity: 1;
+            transform: translateX(0) scaleX(1);
             filter: blur(0);
           }
         }
@@ -193,11 +179,28 @@ export default function Hero() {
           100% { stroke-dashoffset: 0; }
         }
 
-        .glass-card-hero {
-          background: rgba(255, 255, 255, 0.4);
-          backdrop-filter: blur(40px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          33% {
+            transform: translate(30px, -50px) scale(1.1);
+          }
+          66% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+        }
+
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+
+        .animation-delay-4000 {
+          animation-delay: 4s;
         }
       `}</style>
     </>

@@ -104,16 +104,13 @@ export default function Contact() {
 
           {/* Center - Contact Form */}
           <div className="lg:col-span-1">
-        <div className="bg-gray-900/90 backdrop-blur-sm border border-gray-800 p-6 sm:p-8 rounded-2xl shadow-2xl hover:shadow-brand-purple/20 transition-shadow">
-          <div className="inline-block mb-4">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-brand-orange via-brand-purple to-brand-green blur-lg opacity-40 animate-pulse"></div>
-              <h2 className="relative text-2xl sm:text-3xl font-bold tracking-tighter bg-gradient-to-r from-brand-orange via-brand-purple to-brand-green bg-clip-text text-transparent">
-                Ready to scale?
-              </h2>
-            </div>
+        <div className="bg-gray-900/90 backdrop-blur-xl border-2 border-gray-800 p-8 sm:p-10 rounded-3xl shadow-2xl hover:shadow-brand-purple/30 transition-shadow">
+          <div className="mb-6">
+            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight bg-gradient-to-r from-brand-orange via-brand-purple to-brand-green bg-clip-text text-transparent mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Ready to scale?
+            </h2>
+            <p className="text-gray-300 text-base sm:text-lg font-medium" style={{ fontFamily: "'Inter', sans-serif" }}>Let's engineer your advantage.</p>
           </div>
-          <p className="text-gray-300 mb-6 text-sm sm:text-base font-light">Let's engineer your advantage.</p>
 
           {showConsultationPrompt ? (
             <div className="py-8 text-center animate-fade-in">
