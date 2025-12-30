@@ -106,9 +106,8 @@ export default function Hero() {
 
             Join the <span className="font-medium text-transparent bg-clip-text bg-gradient-to-r from-brand-purple via-brand-purple to-brand-green">Flow Revolution.</span><br/>
 
-            <div className="text-4xl md:text-6xl lg:text-7xl mt-2 font-light text-brand-black/90">
-              Smart{' '}
-              <span className="inline-block w-[300px] md:w-[450px] lg:w-[600px] text-left align-bottom relative h-[1.2em]">
+            <div className="text-4xl md:text-6xl lg:text-7xl mt-2 font-light text-brand-black/90 ml-4 md:ml-8 lg:ml-12">
+              Smart <span className="inline-block w-[300px] md:w-[450px] lg:w-[600px] text-left align-bottom relative h-[1.2em]">
                 <span ref={wrapperRef} className="absolute left-0 top-0 transition-all duration-500" style={{ opacity: 1 }}>
                   <span ref={changingWordRef} className="font-medium text-brand-green relative z-10">Chemistry</span>
                 </span>
