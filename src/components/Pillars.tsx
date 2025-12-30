@@ -1,5 +1,6 @@
-import { useState, useRef, forwardRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { ArrowRight } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 export const pillars = [
   {
@@ -142,43 +143,14 @@ export const pillars = [
 ];
 
 export default function Pillars() {
+  const location = useLocation();
   const [activePillar, setActivePillar] = useState<number | null>(1);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [showConnectionWire, setShowConnectionWire] = useState(false);
-  const [connectionPath, setConnectionPath] = useState('');
   const detailPanelRef = useRef<HTMLDivElement>(null);
-  const pillarRefs = useRef<{ [key: number]: HTMLDivElement | null }>({});
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const handlePillarClick = (pillarId: number) => {
     if (pillarId !== activePillar && !isAnimating) {
-      // Calculate connection path
-      const pillarElement = pillarRefs.current[pillarId];
-      const detailElement = detailPanelRef.current;
-      const containerElement = containerRef.current;
-
-      if (pillarElement && detailElement && containerElement) {
-        const containerRect = containerElement.getBoundingClientRect();
-        const pillarRect = pillarElement.getBoundingClientRect();
-        const detailRect = detailElement.getBoundingClientRect();
-
-        const startX = (pillarRect.right - containerRect.left) / containerRect.width * 100;
-        const startY = (pillarRect.top + pillarRect.height / 2 - containerRect.top) / containerRect.height * 100;
-        const endX = (detailRect.left - containerRect.left) / containerRect.width * 100;
-        const endY = (detailRect.top + detailRect.height / 2 - containerRect.top) / containerRect.height * 100;
-
-        const controlX = (startX + endX) / 2;
-        const path = `M ${startX}% ${startY}% Q ${controlX}% ${startY}%, ${endX}% ${endY}%`;
-        setConnectionPath(path);
-      }
-
-      setShowConnectionWire(true);
       setIsAnimating(true);
-
-      setTimeout(() => {
-        setShowConnectionWire(false);
-      }, 1000);
-
       setTimeout(() => {
         setActivePillar(pillarId);
         setTimeout(() => setIsAnimating(false), 400);
@@ -211,292 +183,139 @@ export default function Pillars() {
     }
   };
 
+  // Handle navigation from detail page
+  useEffect(() => {
+    const state = location.state as { scrollToPillar?: number } | null;
+    if (state?.scrollToPillar && state.scrollToPillar !== activePillar) {
+      setActivePillar(state.scrollToPillar);
+    }
+
+    // Listen for custom event from detail page
+    const handleSelectPillar = (event: CustomEvent) => {
+      const pillarId = (event as CustomEvent<{ pillarId: number }>).detail.pillarId;
+      if (pillarId && pillarId !== activePillar) {
+        handlePillarClick(pillarId);
+      }
+    };
+
+    window.addEventListener('selectPillar', handleSelectPillar as EventListener);
+    return () => {
+      window.removeEventListener('selectPillar', handleSelectPillar as EventListener);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+
   const selectedPillar = pillars.find((p) => p.id === activePillar);
 
   return (
-    <section id="pillars" className="relative py-16 sm:py-20 px-4 sm:px-6 bg-black overflow-hidden">
+    <section id="pillars" className="relative py-16 sm:py-20 px-4 sm:px-6 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
       <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-brand-purple/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-brand-orange/10 rounded-full blur-3xl"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="mb-12 sm:mb-16 text-center">
           <div className="inline-block mb-4">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-semibold tracking-tighter text-white">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light tracking-tight text-white" style={{ fontFamily: "'FF Nort', sans-serif" }}>
               The Flownetics Standard.
             </h2>
           </div>
-          <p className="text-gray-400 text-base sm:text-lg">Click to explore each pillar.</p>
+          <p className="text-gray-300 text-sm font-light" style={{ fontFamily: "'FF Nort', sans-serif" }}>Click to explore each pillar.</p>
         </div>
 
-        <div ref={containerRef} className="grid lg:grid-cols-2 gap-8 sm:gap-12 items-start relative">
-          {/* Connection Wire Animation */}
-          {showConnectionWire && activePillar && connectionPath && (
-            <svg
-              className="absolute inset-0 w-full h-full pointer-events-none z-20"
-              style={{ overflow: 'visible' }}
-            >
-              <defs>
-                <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor={
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('orange') ? '#e07742' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('purple') ? '#702594' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('blue') ? '#1406b3' :
-                    '#057210'
-                  } stopOpacity="1"/>
-                  <stop offset="50%" stopColor={
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('orange') ? '#e07742' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('purple') ? '#702594' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('blue') ? '#1406b3' :
-                    '#057210'
-                  } stopOpacity="0.8"/>
-                  <stop offset="100%" stopColor={
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('orange') ? '#e07742' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('purple') ? '#702594' :
-                    pillars.find(p => p.id === activePillar)?.accentColor.includes('blue') ? '#1406b3' :
-                    '#057210'
-                  } stopOpacity="1"/>
-                </linearGradient>
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
-                  <feMerge>
-                    <feMergeNode in="coloredBlur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-              <path
-                d={connectionPath}
-                stroke="url(#wireGradient)"
-                strokeWidth="6"
-                fill="none"
-                className="connection-wire"
-                filter="url(#glow)"
-              />
-              {/* Animated dot traveling along the path */}
-              <circle r="8" fill={
-                pillars.find(p => p.id === activePillar)?.accentColor.includes('orange') ? '#e07742' :
-                pillars.find(p => p.id === activePillar)?.accentColor.includes('purple') ? '#702594' :
-                pillars.find(p => p.id === activePillar)?.accentColor.includes('blue') ? '#1406b3' :
-                '#057210'
-              } className="connection-dot" filter="url(#glow)">
-                <animateMotion dur="1s" repeatCount="1">
-                  <mpath href="#wirePath"/>
-                </animateMotion>
-              </circle>
-              <path id="wirePath" d={connectionPath} fill="none" stroke="none"/>
-            </svg>
-          )}
-
-          <div className="space-y-3 sm:space-y-4">
+        <div className="grid lg:grid-cols-5 gap-6 sm:gap-8 items-start">
+          <div className="space-y-3 sm:space-y-4 lg:col-span-2">
             {pillars.map((pillar) => (
               <PillarCard
                 key={pillar.id}
                 pillar={pillar}
                 isActive={activePillar === pillar.id}
                 onClick={() => handlePillarClick(pillar.id)}
-                ref={(el) => (pillarRefs.current[pillar.id] = el)}
               />
             ))}
           </div>
 
-          <div ref={detailPanelRef} className="lg:sticky lg:top-24 detail-panel-container">
+          <div ref={detailPanelRef} className="lg:sticky lg:top-24 detail-panel-container lg:col-span-3">
             {selectedPillar && (
               <div
-                className={`detail-panel border-2 rounded-3xl p-6 sm:p-8 shadow-2xl cursor-purple transition-all duration-300 flex flex-col relative overflow-hidden ${
+                className={`detail-panel bg-gradient-to-br from-gray-800/60 via-gray-800/40 to-gray-800/60 border border-gray-700/50 rounded-2xl p-5 sm:p-7 shadow-2xl cursor-purple transition-all duration-300 flex flex-col ${
                   isAnimating ? 'slide-out' : 'slide-in'
                 }`}
-                style={{
-                  background: (() => {
-                    const color = selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                                  selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                  selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                  '#057210';
-                    const darkerColor = selectedPillar.accentColor.includes('orange') ? '#c25a2a' :
-                                       selectedPillar.accentColor.includes('purple') ? '#551c73' :
-                                       selectedPillar.accentColor.includes('blue') ? '#0d0480' :
-                                       '#03540c';
-                    const lighterColor = selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                        selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                        selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                        '#0aa11d';
-                    return `radial-gradient(ellipse at bottom left, ${color}40 0%, ${darkerColor}25 30%, rgba(20, 20, 20, 0.98) 70%), radial-gradient(circle at top right, ${lighterColor}30 0%, transparent 50%)`;
-                  })(),
-                  borderColor: selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                              selectedPillar.accentColor.includes('purple') ? '#702594' :
-                              selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                              selectedPillar.accentColor.includes('green') ? '#057210' : '#702594',
-                  boxShadow: (() => {
-                    const color = selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                                  selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                  selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                  '#057210';
-                    return `0 0 50px ${color}50, 0 0 100px ${color}25, inset 0 0 100px ${color}10`;
-                  })()
-                }}
               >
-                {/* Animated gradient orb */}
-                <div
-                  className="absolute -top-20 -right-20 w-64 h-64 rounded-full blur-3xl opacity-30 animate-pulse"
-                  style={{
-                    background: (() => {
-                      const lighterColor = selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                          selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                          selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                          '#0aa11d';
-                      return `radial-gradient(circle, ${lighterColor} 0%, transparent 70%)`;
-                    })()
-                  }}
-                />
+                <p className="text-gray-200 mb-4 text-sm sm:text-base leading-relaxed font-light" style={{ fontFamily: "'FF Nort', sans-serif" }}>
+                  {selectedPillar.description}
+                </p>
 
-                {/* Overview */}
+                {/* Overview - Show only first part */}
                 {selectedPillar.overview && (
-                  <div className="mb-4 relative z-10">
-                  <h4 className="text-xs font-black text-gray-300 uppercase tracking-wider mb-2">
+                  <div className="border-t border-gray-700/50 pt-4 mb-4">
+                  <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3" style={{ fontFamily: "'FF Nort', sans-serif" }}>
                       Overview
                   </h4>
-                    <p className="text-gray-200 leading-relaxed text-xs sm:text-sm font-medium">
-                      {selectedPillar.overview}
+                    <p className="text-gray-300 leading-relaxed text-sm sm:text-base font-light line-clamp-3" style={{ fontFamily: "'FF Nort', sans-serif" }}>
+                      {selectedPillar.overview.substring(0, 200)}...
                   </p>
                 </div>
                 )}
 
-                {/* Technical Capabilities */}
+                {/* Technical Capabilities - Show only first 2 */}
                 {selectedPillar.technicalCapabilities && selectedPillar.technicalCapabilities.length > 0 && (
-                  <div className="mb-4 relative z-10">
-                    <h4 className="text-xs font-black text-gray-300 uppercase tracking-wider mb-2">
+                  <div className="mb-4">
+                    <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3" style={{ fontFamily: "'FF Nort', sans-serif" }}>
                       Technical Capabilities
                   </h4>
                   <ul className="space-y-2">
-                      {selectedPillar.technicalCapabilities.map((capability, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div
-                            className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                      {selectedPillar.technicalCapabilities.slice(0, 2).map((capability, index) => (
+                        <li key={index} className="flex items-start gap-2.5">
+                          <div 
+                            className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
                             style={{
-                              backgroundColor: selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                              selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                              selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                              selectedPillar.accentColor.includes('green') ? '#0aa11d' : '#9b4ec7',
-                              boxShadow: `0 0 10px ${selectedPillar.accentColor.includes('orange') ? '#e07742' :
+                              backgroundColor: selectedPillar.accentColor.includes('orange') ? '#e07742' :
                                               selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                              selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                              '#057210'}`
+                                              selectedPillar.accentColor.includes('green') ? '#057210' : '#702594'
                             }}
                           ></div>
-                          <span className="text-gray-200 text-xs leading-relaxed font-medium">{capability}</span>
+                          <span className="text-gray-300 text-sm leading-relaxed line-clamp-2 font-light" style={{ fontFamily: "'FF Nort', sans-serif" }}>{capability}</span>
                     </li>
                       ))}
                     </ul>
                   </div>
                 )}
 
-                {/* Business Impact */}
-                {selectedPillar.businessImpact && selectedPillar.businessImpact.length > 0 && (
-                  <div className="mb-4 relative z-10">
-                    <h4 className="text-xs font-black text-gray-300 uppercase tracking-wider mb-2">
-                      Business Impact
-                    </h4>
-                    <ul className="space-y-2">
-                      {selectedPillar.businessImpact.map((impact, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div
-                            className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
-                            style={{
-                              backgroundColor: selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                              selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                              selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                              selectedPillar.accentColor.includes('green') ? '#0aa11d' : '#9b4ec7',
-                              boxShadow: `0 0 10px ${selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                                              selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                              selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                              '#057210'}`
-                            }}
-                          ></div>
-                          <span className="text-gray-200 text-xs leading-relaxed font-medium">{impact}</span>
-                    </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {/* Key Benefits */}
+                {/* Key Benefits - Show only first 2 */}
                 {selectedPillar.keyBenefits && selectedPillar.keyBenefits.length > 0 && (
-                  <div className="rounded-xl p-4 shadow-sm mb-3 flex-grow relative z-10"
-                    style={{
-                      background: (() => {
-                        const color = selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                                      selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                      selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                      '#057210';
-                        return `linear-gradient(135deg, ${color}20 0%, rgba(0, 0, 0, 0.4) 100%)`;
-                      })(),
-                      borderLeft: `4px solid ${selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                              selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                              selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                              '#0aa11d'}`,
-                      boxShadow: `0 0 20px ${selectedPillar.accentColor.includes('orange') ? '#e0774220' :
-                                            selectedPillar.accentColor.includes('purple') ? '#70259420' :
-                                            selectedPillar.accentColor.includes('blue') ? '#1406b320' :
-                                            '#05721020'}`
-                    }}
-                  >
-                    <h4 className="text-xs font-black uppercase tracking-wider mb-2"
-                      style={{
-                        color: selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                               selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                               selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                               '#0aa11d'
-                      }}
-                    >
+                  <div className="bg-gray-900/40 rounded-xl p-4 shadow-sm mb-4 flex-grow">
+                    <h4 className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-3" style={{ fontFamily: "'FF Nort', sans-serif" }}>
                       Key Benefits
                     </h4>
                     <ul className="space-y-2">
-                      {selectedPillar.keyBenefits.map((benefit, index) => (
-                        <li key={index} className="flex items-start gap-2">
-                          <div
-                            className="w-2 h-2 rounded-full mt-1.5 flex-shrink-0"
+                      {selectedPillar.keyBenefits.slice(0, 2).map((benefit, index) => (
+                        <li key={index} className="flex items-start gap-2.5">
+                          <div 
+                            className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0"
                             style={{
-                              backgroundColor: selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                                              selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                                              selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                                              selectedPillar.accentColor.includes('green') ? '#0aa11d' : '#9b4ec7',
-                              boxShadow: `0 0 10px ${selectedPillar.accentColor.includes('orange') ? '#e07742' :
+                              backgroundColor: selectedPillar.accentColor.includes('orange') ? '#e07742' :
                                               selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                              selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                              '#057210'}`
+                                              selectedPillar.accentColor.includes('green') ? '#057210' : '#702594'
                             }}
                           ></div>
-                          <span className="text-gray-100 text-xs leading-relaxed font-semibold">{benefit}</span>
+                          <span className="text-gray-300 text-sm leading-relaxed line-clamp-2 font-light" style={{ fontFamily: "'FF Nort', sans-serif" }}>{benefit}</span>
                     </li>
                       ))}
                   </ul>
                 </div>
                 )}
 
-                <div className="pt-3 border-t mt-auto relative z-10"
-                  style={{
-                    borderColor: selectedPillar.accentColor.includes('orange') ? '#e0774250' :
-                                selectedPillar.accentColor.includes('purple') ? '#70259450' :
-                                selectedPillar.accentColor.includes('blue') ? '#1406b350' :
-                                '#05721050'
-                  }}
-                >
+                <div className="pt-4 border-t border-gray-700/50 mt-auto">
                   <a
                     href={`/pillar/${selectedPillar.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center text-xs font-black uppercase tracking-widest hover:underline transition-all"
-                    style={{
-                      color: selectedPillar.accentColor.includes('orange') ? '#ff9966' :
-                            selectedPillar.accentColor.includes('purple') ? '#9b4ec7' :
-                            selectedPillar.accentColor.includes('blue') ? '#3d28e6' :
-                            '#0aa11d',
-                      textShadow: `0 0 15px ${selectedPillar.accentColor.includes('orange') ? '#e07742' :
-                                             selectedPillar.accentColor.includes('purple') ? '#702594' :
-                                             selectedPillar.accentColor.includes('blue') ? '#1406b3' :
-                                             '#057210'}50`
+                    onClick={(e) => {
+                      e.preventDefault();
+                      window.location.href = `/pillar/${selectedPillar.id}`;
                     }}
+                    className={`inline-flex items-center text-xs font-medium uppercase tracking-wider ${selectedPillar.accentColor} hover:underline transition-all`}
+                    style={{ fontFamily: "'FF Nort', sans-serif" }}
                   >
-                    Learn More <ArrowRight className="w-4 h-4 ml-2" />
+                    View More <ArrowRight className="w-3.5 h-3.5 ml-2" />
                   </a>
                 </div>
               </div>
@@ -514,33 +333,6 @@ export default function Pillars() {
           transform: translateX(4px);
         }
 
-        .connection-wire {
-          animation: wireFlow 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-          stroke-dasharray: 1000;
-          stroke-dashoffset: 1000;
-        }
-
-        @keyframes wireFlow {
-          0% {
-            stroke-dashoffset: 1000;
-            opacity: 0;
-          }
-          10% {
-            opacity: 1;
-          }
-          90% {
-            opacity: 1;
-          }
-          100% {
-            stroke-dashoffset: 0;
-            opacity: 0;
-          }
-        }
-
-        .connection-dot {
-          filter: drop-shadow(0 0 10px currentColor);
-        }
-
         .detail-panel {
           will-change: transform, opacity;
           position: sticky;
@@ -555,9 +347,7 @@ export default function Pillars() {
           }
           
           .detail-panel {
-            min-height: 100%;
-            height: auto;
-            flex: 1;
+            height: fit-content;
             display: flex;
             flex-direction: column;
           }
@@ -567,17 +357,17 @@ export default function Pillars() {
           }
 
           .detail-panel::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.3);
+            background: #f1f1f1;
             border-radius: 10px;
           }
 
           .detail-panel::-webkit-scrollbar-thumb {
-            background: rgba(112, 37, 148, 0.6);
+            background: #702594;
             border-radius: 10px;
           }
 
           .detail-panel::-webkit-scrollbar-thumb:hover {
-            background: rgba(112, 37, 148, 0.9);
+            background: #8e30bc;
           }
         }
 
@@ -631,107 +421,70 @@ export default function Pillars() {
   );
 }
 
-const PillarCard = forwardRef<HTMLDivElement, {
+function PillarCard({ pillar, isActive, onClick }: {
   pillar: typeof pillars[0];
   isActive: boolean;
   onClick: () => void;
-}>(({ pillar, isActive, onClick }, ref) => {
-  const getBrandColor = () => {
-    if (pillar.accentColor.includes('orange')) return '#e07742';
-    if (pillar.accentColor.includes('purple')) return '#702594';
-    if (pillar.accentColor.includes('blue')) return '#1406b3';
-    if (pillar.accentColor.includes('green')) return '#057210';
-    return '#702594';
-  };
-
-  const brandColor = getBrandColor();
-
-  const getDarkerShade = (color: string) => {
-    if (color === '#e07742') return '#c25a2a';
-    if (color === '#702594') return '#551c73';
-    if (color === '#1406b3') return '#0d0480';
-    if (color === '#057210') return '#03540c';
-    return '#551c73';
-  };
-
-  const getLighterShade = (color: string) => {
-    if (color === '#e07742') return '#ff9966';
-    if (color === '#702594') return '#9b4ec7';
-    if (color === '#1406b3') return '#3d28e6';
-    if (color === '#057210') return '#0aa11d';
-    return '#9b4ec7';
-  };
-
-  const darkerShade = getDarkerShade(brandColor);
-  const lighterShade = getLighterShade(brandColor);
+}) {
+  const gradientColors = pillar.accentColor.includes('orange') 
+    ? 'from-brand-orange/25 via-gray-800/30 to-gray-800/25'
+    : pillar.accentColor.includes('purple')
+    ? 'from-brand-purple/25 via-gray-800/30 to-gray-800/25'
+    : 'from-brand-green/25 via-gray-800/30 to-gray-800/25';
 
   return (
     <div
-      ref={ref}
       onClick={onClick}
-      className={`pillar-card p-4 sm:p-5 rounded-2xl border-2 transition-all duration-500 cursor-pointer hover:shadow-lg group relative overflow-hidden ${
+      className={`pillar-card p-4 sm:p-5 rounded-xl bg-gradient-to-r ${gradientColors} border transition-all duration-500 cursor-pointer hover:shadow-lg group relative overflow-hidden ${
         isActive
-          ? 'shadow-2xl scale-[1.02]'
-          : 'shadow-md'
+          ? pillar.accentColor.includes('orange') ? 'border-brand-orange/50 shadow-xl scale-[1.02]' :
+            pillar.accentColor.includes('purple') ? 'border-brand-purple/50 shadow-xl scale-[1.02]' :
+            'border-brand-green/50 shadow-xl scale-[1.02]'
+          : 'border-gray-700/50 shadow-sm hover:border-gray-600'
       }`}
-      style={{
-        background: isActive
-          ? `radial-gradient(circle at top right, ${lighterShade}60 0%, ${brandColor}50 25%, ${darkerShade}30 60%, rgba(20, 20, 20, 0.95) 100%)`
-          : 'linear-gradient(135deg, rgba(30, 30, 30, 0.9) 0%, rgba(20, 20, 20, 0.95) 100%)',
-        borderColor: isActive ? brandColor : 'rgba(255, 255, 255, 0.1)',
-        boxShadow: isActive ? `0 0 40px ${brandColor}60, 0 0 80px ${brandColor}30, inset 0 0 60px ${brandColor}15` : undefined
-      }}
     >
-      {/* Animated background accent */}
-      {isActive && (
-        <div
-          className="absolute top-0 right-0 w-32 h-32 rounded-full blur-2xl opacity-40 animate-pulse"
-          style={{
-            background: `radial-gradient(circle, ${lighterShade} 0%, transparent 70%)`
-          }}
-        />
-      )}
-
       <div className="flex justify-between items-start mb-3 relative z-10">
-        <span className={`text-sm font-black uppercase transition-colors duration-500 tracking-wider`}
-          style={{
-            color: isActive ? lighterShade : '#6b7280',
-            textShadow: isActive ? `0 0 10px ${brandColor}80` : 'none'
-          }}
-        >
+        <span className={`text-xs font-medium uppercase tracking-wider transition-colors duration-500 ${
+          isActive 
+            ? pillar.accentColor.includes('orange') ? 'text-brand-orange' :
+              pillar.accentColor.includes('purple') ? 'text-brand-purple' :
+              'text-brand-green'
+            : 'text-gray-500'
+        }`}
+        style={{ fontFamily: "'FF Nort', sans-serif" }}>
           {pillar.number}
         </span>
         <ArrowRight
-          className={`w-5 h-5 transition-all duration-500 ${
+          className={`w-4 h-4 transition-all duration-500 ${
             isActive
-              ? 'translate-x-0 opacity-100'
-              : '-translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
+              ? pillar.accentColor.includes('orange') ? 'text-brand-orange' :
+                pillar.accentColor.includes('purple') ? 'text-brand-purple' :
+                'text-brand-green'
+              : 'text-gray-500 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100'
           }`}
-          style={{ color: isActive ? brandColor : '#9ca3af' }}
         />
       </div>
 
-      <h3 className={`text-base sm:text-lg font-black mb-1.5 transition-colors duration-300 tracking-tight`}
-        style={{
-          color: isActive ? '#ffffff' : '#e5e7eb',
-          textShadow: isActive ? `0 0 20px ${brandColor}80` : 'none'
-        }}
-      >
+      <h3 className={`text-base sm:text-lg font-medium mb-2 transition-colors duration-300 ${
+        isActive ? 'text-white' : 'text-gray-200 group-hover:text-white'
+      }`}
+      style={{ fontFamily: "'FF Nort', sans-serif" }}>
         {pillar.title}
       </h3>
-      <p className={`text-xs sm:text-sm leading-relaxed ${isActive ? 'text-gray-200' : 'text-gray-400'}`}>
-        {pillar.description}
-      </p>
+      <p className="text-gray-300 text-sm sm:text-base leading-relaxed font-light" style={{ fontFamily: "'FF Nort', sans-serif" }}>{pillar.description}</p>
 
       <div
-        className={`absolute bottom-0 left-0 w-full h-1.5 transition-all duration-500 origin-left ${
+        className={`absolute bottom-0 left-0 w-full h-0.5 transition-all duration-500 origin-left ${
           isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-50'
         }`}
-        style={{
-          background: `linear-gradient(90deg, ${lighterShade} 0%, ${brandColor} 50%, ${darkerShade} 100%)`,
-          boxShadow: isActive ? `0 0 20px ${brandColor}, 0 -5px 20px ${brandColor}40` : undefined
+        style={{ 
+          backgroundColor: isActive 
+            ? pillar.accentColor.includes('orange') ? '#e07742' :
+              pillar.accentColor.includes('purple') ? '#702594' :
+              '#057210'
+            : '#4a5568' 
         }}
       ></div>
     </div>
   );
-});
+}
