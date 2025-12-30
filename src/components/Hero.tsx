@@ -40,15 +40,37 @@ export default function Hero() {
   }, []);
 
   useEffect(() => {
-    // Set static text for "Smart Standard" - no animation
-    if (changingWordRef.current) {
-      changingWordRef.current.textContent = 'Standard';
+    // Changing word animation - only the word after "Smart" changes
+    if (wrapperRef.current && changingWordRef.current) {
+      const words = ['Chemistry', 'Scale-up', 'Manufacturing'];
+      let wordIndex = 0;
+
+      // Set initial word
+      changingWordRef.current.textContent = words[wordIndex];
+
+      const interval = setInterval(() => {
+        // Fade out & slide down
+        wrapperRef.current!.style.opacity = '0';
+        wrapperRef.current!.style.transform = 'translateY(10px)';
+
+        setTimeout(() => {
+          // Change word
+          wordIndex = (wordIndex + 1) % words.length;
+          changingWordRef.current!.textContent = words[wordIndex];
+
+          // Fade in & slide up
+          wrapperRef.current!.style.opacity = '1';
+          wrapperRef.current!.style.transform = 'translateY(0)';
+        }, 500);
+      }, 3000);
+
+      return () => clearInterval(interval);
     }
   }, []);
 
   return (
     <>
-      <section className="relative min-h-[110vh] flex flex-col justify-center items-center px-6 pt-20 overflow-hidden bg-gradient-to-b from-white to-gray-50/30">
+      <section className="relative min-h-[110vh] flex flex-col justify-center items-center px-6 pt-12 overflow-hidden bg-gradient-to-b from-white to-gray-50/30">
         {/* Dynamic Background Elements */}
         <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
           {/* Animated Gradient Blobs - More subtle and white */}
@@ -87,8 +109,8 @@ export default function Hero() {
             <div className="text-4xl md:text-6xl lg:text-7xl mt-2 font-light text-brand-black/90">
               Smart{' '}
               <span className="inline-block min-w-[300px] text-center align-bottom mx-2 relative">
-                <span ref={wrapperRef} className="relative inline-block" style={{ opacity: 1 }}>
-                  <span ref={changingWordRef} className="font-medium text-brand-purple relative z-10">Standard</span>
+                <span ref={wrapperRef} className="relative inline-block transition-all duration-500" style={{ opacity: 1 }}>
+                  <span ref={changingWordRef} className="font-medium text-brand-purple relative z-10">Chemistry</span>
                 </span>
             </span>
             </div>
